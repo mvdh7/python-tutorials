@@ -14,17 +14,17 @@ x_values = glodap[fvar][L].to_numpy()
 depth_values = glodap.depth[L].to_numpy()
 
 # Sort arrays by depth
-depth_index = np.argsort(x_values)
+depth_index = np.argsort(depth_values)
 x_values = x_values[depth_index]
 depth_values = depth_values[depth_index]
 
-# Do a PCHIP interpolation
-interpolator = interpolate.pchip(depth_values, x_values)
+# # Do a PCHIP interpolation
+# interpolator = interpolate.pchip(depth_values, x_values)
 
 
 # Basic plotting
 fig, ax = plt.subplots(dpi=300)
 glodap[L].plot.scatter(fvar, "depth", ax=ax)
 glodap[L].plot(fvar, "depth", ax=ax, legend=False)
-ax.set_ylim([1200, 0])
+ax.set_ylim([2000, 0])
 # ax.invert_yaxis()
