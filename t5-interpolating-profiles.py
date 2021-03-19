@@ -1,7 +1,6 @@
 import pandas as pd, numpy as np
 from matplotlib import pyplot as plt
-from scipy import interpolate
-from sklearn.cluster import MeanShift
+import tutools as tt
 
 # Import GLODAP dataset
 glodap = pd.read_csv("data/GLODAPv2.2020_Indian_Ocean.csv", na_values=-9999)
@@ -14,47 +13,20 @@ L = (glodap.cruise == 387) & (glodap.station == 13) & ~np.isnan(glodap[fvar])
 x_values = glodap[fvar][L].to_numpy()
 depth_values = glodap.depth[L].to_numpy()
 
+# Get the interpolating function
+interpolator = tt.get_cluster_interp(depth_values, x_values)[2]
 
-def cluster_profile(depth_values, x_values, bandwidth=10):
-    """Cluster depth profile data with MeanShift and interpolate.
-    
-    Awesome.
-    """
-    # Clustering
-    depth_values_v = np.vstack(depth_values)
-    clustering = MeanShift(bandwidth=bandwidth).fit(depth_values_v)
-    cluster_labels = clustering.labels_
+# glodap_station = glodap[L]
+# test = get_depth_interpolation(glodap_station)
 
-    # Average by cluster
-    depth_clusters = clustering.cluster_centers_.ravel()
-    x_clusters = np.full_like(depth_clusters, np.nan)
-    for i in range(len(depth_clusters)):
-        x_clusters[i] = np.mean(x_values[cluster_labels == i])
-
-    # Sort arrays by depth
-    depth_index = np.argsort(depth_clusters)
-    x_clusters = x_clusters[depth_index]
-    depth_clusters = depth_clusters[depth_index]
-
-    # # Average duplicate values
-    # depth_unique = np.unique(depth_values)
-    # x_unique = np.full_like(depth_unique, np.nan)
-    # for i in range(len(depth_unique)):
-    #     x_unique[i] = np.mean(x_values[depth_values == depth_unique[i]])
-
-    # Do a PCHIP interpolation
-    interpolator = interpolate.pchip(depth_clusters, x_clusters)
-    depth_plotting = np.linspace(np.min(depth_values), np.max(depth_values), num=1000)
-    x_plotting = interpolator(depth_plotting)
-
-    return depth_clusters, x_clusters, depth_plotting, x_plotting
+all_stations = glodap[:5000].groupby(by=["cruise", "station"]).apply(
+    tt.get_depth_interpolation)
 
 
-# Don't forget to run the function!
-depth_clusters, x_clusters, depth_plotting, x_plotting = cluster_profile(
+#%% Don't forget to run the function!
+depth_clusters, x_clusters, depth_plotting, x_plotting = tt.cluster_profile(
     depth_values, x_values, bandwidth=8
 )
-
 
 # Basic plotting
 fig, ax = plt.subplots(dpi=300)
