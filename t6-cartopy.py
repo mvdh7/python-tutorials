@@ -35,9 +35,24 @@ ax.set_extent(extents, crs=ccrs.PlateCarree())
 # ax.set_global()
 
 land = cfeature.LAND
+land = cfeature.NaturalEarthFeature("physical", "land", "10m")
 ax.add_feature(land, facecolor="xkcd:dark grey",
                edgecolor="none")
 
+islands = cfeature.NaturalEarthFeature("physical",
+                                       "minor_islands",
+                                       "10m")
+ax.add_feature(islands, facecolor="xkcd:dark grey",
+               edgecolor="none")
+
+
+# physical/ne_10m_rivers_lake_centerlines.zip
+rivers = cfeature.NaturalEarthFeature("physical",
+                                      "rivers_lake_centerlines",
+                                      "10m")
+ax.add_feature(rivers, facecolor="none", edgecolor="b")
+
+plt.savefig("figures/t6-cartopy.png")
 
 # ax.stock_img()
 
